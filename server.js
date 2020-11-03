@@ -21,8 +21,7 @@ MongoClient.connect(url, { useUnifiedTopology: true })
       .catch(error => console.error(error))
     })
     app.get('/records/:id', (req, res) => {
-      const searchedRecordId = req.params.id;
-      collection.find({'id': searchedRecordId}).toArray()
+      collection.find({'id': req.params.id}).toArray()
       .then(result => {
         if (result.length === 0) {
           res.send('No record found by given ID')
@@ -31,6 +30,20 @@ MongoClient.connect(url, { useUnifiedTopology: true })
         }
       })
       .catch(error => console.error(error))
+    })
+    app.post('/records', (req, res) => {
+      collection.find({'id': req.body.id}).toArray()
+      if (!req.body.id) {
+        res.send('No ID given');
+      } else if (collection.find({'id': req.body.id}).toArray().length !== 0) {
+        res.send('Given ID already exists');
+      } else {
+        collection.insertOne(req.body)
+        .then(result => {
+          res.send(result);
+        })
+        .catch(error => console.error(error))
+      }
     })
   })
   .catch(error => console.error(error));
