@@ -6,15 +6,15 @@ const app = express();
 app.use(express.json());
 const MongoClient = require('mongodb').MongoClient;
 const PORT = 3000;
-const url = process.env.DB_URL;
+const dbUrl = process.env.DB_URL;
 
-MongoClient.connect(url, { useUnifiedTopology: true })
+MongoClient.connect(dbUrl, { useUnifiedTopology: true })
   .then(client => {
     console.log('Connected to Database');
-    const db = client.db('gamma_db');
-    const collection = db.collection('records');
+    const gammaDb = client.db('gamma_db');
+    const recordCollection = gammaDb.collection('records');
     app.get('/records', (req, res) => {
-      collection.find().toArray()
+      recordCollection.find().toArray()
         .then(result => {
           if (result.length === 0) {
             res.send({ status : 'No saved records' });
@@ -25,7 +25,7 @@ MongoClient.connect(url, { useUnifiedTopology: true })
         .catch(error => console.error(error));
     });
     app.get('/records/:id', (req, res) => {
-      collection.find({'id': req.params.id}).toArray()
+      recordCollection.find({'id': req.params.id}).toArray()
         .then(result => {
           if (result.length === 0) {
             res.send({ error: 'No record found by given ID' });
@@ -39,12 +39,12 @@ MongoClient.connect(url, { useUnifiedTopology: true })
       if (!req.body.id) {
         res.send({ error: 'No ID given' });
       } else {
-        collection.find({'id': req.body.id}).toArray()
+        recordCollection.find({'id': req.body.id}).toArray()
           .then(result => {
             if (result.length !== 0) {
               res.send({ error: 'Given ID already exists' });
             } else {
-              collection.insertOne(req.body);
+              recordCollection.insertOne(req.body);
               res.send({ status: 'Created' });
             };
           })
@@ -52,7 +52,7 @@ MongoClient.connect(url, { useUnifiedTopology: true })
       }
     });
     app.delete('/records/:id', (req, res) => {
-      collection.findOneAndDelete({'id': req.params.id})
+      recordCollection.findOneAndDelete({'id': req.params.id})
         .then(result => {
           if (!result.value) {
             res.send({ error: 'No record found by given ID' });
