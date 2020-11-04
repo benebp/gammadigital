@@ -20,7 +20,7 @@ API documentation
     - shows all the stored records in the database
     - HTTP method: GET
   
-  /records/:id
+  /records/
     - shows the stored record of the given ID
     - HTTP method: GET
     - parameter is required
@@ -32,7 +32,7 @@ API documentation
     - sample payload:
         { "id": "256", "record": "quarter" }
 
-  /records/:id
+  /records/
     - deletes the stored record of the given ID
     - HTTP method: DELETE
     - parameter is required

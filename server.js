@@ -40,6 +40,7 @@ getDb.then(client => {
           if (result.length !== 0) {
             res.send({ error: 'Given ID already exists' });
           } else {
+            req.body.id = JSON.stringify(req.body.id);
             recordCollection.insertOne(req.body);
             res.send({ status: 'Created' });
           };
