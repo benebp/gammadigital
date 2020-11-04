@@ -6,7 +6,7 @@ const app = express();
 app.use(express.json());
 const MongoClient = require('mongodb').MongoClient;
 const PORT = 3000;
-const url = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@gammadigital.rxvwy.mongodb.net/gamma_db?retryWrites=true&w=majority`;
+const url = process.env.DB_URL;
 
 MongoClient.connect(url, { useUnifiedTopology: true })
   .then(client => {
@@ -17,7 +17,7 @@ MongoClient.connect(url, { useUnifiedTopology: true })
       collection.find().toArray()
         .then(result => {
           if (result.length === 0) {
-            res.send('No saved records');
+            res.send({ status : 'No saved records' });
           } else {
             res.send(result);
           };
@@ -28,7 +28,7 @@ MongoClient.connect(url, { useUnifiedTopology: true })
       collection.find({'id': req.params.id}).toArray()
         .then(result => {
           if (result.length === 0) {
-            res.send('No record found by given ID');
+            res.send({ error: 'No record found by given ID' });
           } else {
             res.send(result[0]);
           };
@@ -37,15 +37,15 @@ MongoClient.connect(url, { useUnifiedTopology: true })
     });
     app.post('/records', (req, res) => {
       if (!req.body.id) {
-        res.send('No ID given');
+        res.send({ error: 'No ID given' });
       } else {
         collection.find({'id': req.body.id}).toArray()
           .then(result => {
             if (result.length !== 0) {
-              res.send('Given ID already exists');
+              res.send({ error: 'Given ID already exists' });
             } else {
               collection.insertOne(req.body);
-              res.send('Created');
+              res.send({ status: 'Created' });
             };
           })
           .catch(error => console.error(error));
@@ -55,7 +55,7 @@ MongoClient.connect(url, { useUnifiedTopology: true })
       collection.findOneAndDelete({'id': req.params.id})
         .then(result => {
           if (!result.value) {
-            res.send('No record found by given ID');
+            res.send({ error: 'No record found by given ID' });
           } else {
             res.send(result.value);
           };
